@@ -6,6 +6,7 @@ import { ArrowLeft, Download, History, Loader2, LogOut, Phone, Plus, RotateCcw, 
 import { Rise, Stagger } from "../ui/motion";
 import { CURRENCIES } from "../OnboardingScreen";
 import AddictionPicker from "../AddictionPicker";
+import NotificationSettings from "../NotificationSettings";
 import { formatDuration, fromDateTimeInputs, parseQuitDate, toDateInput, toTimeInput } from "../../utils/dateUtils";
 import { toast } from "../../lib/toast";
 
@@ -30,7 +31,7 @@ function Field({ label, children }) {
   );
 }
 
-export default function SettingsView({ user, userData, onBack, onUpdateProfile, onSlip, onExport, onResetAll, onSignOut, onDeleteAccount }) {
+export default function SettingsView({ user, userData, onBack, onUpdateProfile, onSlip, onExport, onResetAll, onSignOut, onDeleteAccount, onShowInstall }) {
   const quit = parseQuitDate(userData.quitDate) || new Date();
   const [form, setForm] = useState({
     name: userData.name || "",
@@ -138,6 +139,14 @@ export default function SettingsView({ user, userData, onBack, onUpdateProfile, 
 
       </div>
       <div className="min-w-0 space-y-4 lg:space-y-6">
+      <Section title="Notifications" description="Reminders and milestones, inside the app and on your phone.">
+        <NotificationSettings onShowInstall={onShowInstall} />
+      </Section>
+      <Section title="Install the app" description="Add Recovery to your home screen for one-tap access and phone notifications.">
+        <button onClick={onShowInstall} className="btn-secondary w-full">
+          <Download className="h-4 w-4" /> Install / Add to Home Screen
+        </button>
+      </Section>
       <Section title="Support contacts" description="People you can call or text from the SOS toolkit.">
         {contacts.map((c) => (
           <div key={c.id} className="flex items-center justify-between rounded-2xl bg-slate-50 p-3">

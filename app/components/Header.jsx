@@ -2,7 +2,9 @@
 "use client";
 import React from "react";
 import { motion } from "motion/react";
-import { CloudCheck, CloudOff, Loader2, Settings, Star } from "lucide-react";
+import { Bell, CloudCheck, CloudOff, Loader2, Settings, Star } from "lucide-react";
+import { AnimatePresence } from "motion/react";
+import { useNotifications } from "../hooks/useNotifications";
 import { timeOfDayGreeting } from "../utils/dateUtils";
 import { useSyncStatus } from "../lib/sync";
 import { useScrolled } from "../lib/useMedia";
@@ -23,8 +25,9 @@ function SyncBadge() {
   );
 }
 
-export default function Header({ userData, level, levelProgress, toNext, onOpenMissions, onOpenSettings, now }) {
+export default function Header({ userData, level, levelProgress, toNext, onOpenMissions, onOpenSettings, onOpenNotifications, now }) {
   const scrolled = useScrolled();
+  const { unread } = useNotifications();
   return (
     <header
       className={`sticky top-0 z-20 border-b transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300 ${
@@ -40,6 +43,28 @@ export default function Header({ userData, level, levelProgress, toNext, onOpenM
         </motion.div>
         <div className="flex items-center gap-1">
           <SyncBadge />
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={onOpenNotifications}
+            className="relative rounded-full p-2.5 text-slate-500 transition hover:bg-white/70"
+            aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"}
+          >
+            <motion.span key={unread} animate={unread ? { rotate: [0, -18, 18, -10, 0] } : {}} transition={{ duration: 0.6 }} className="flex">
+              <Bell className="h-5 w-5" />
+            </motion.span>
+            <AnimatePresence>
+              {unread > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="absolute top-1 right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-white"
+                >
+                  {unread > 9 ? "9+" : unread}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
           <motion.button
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.95 }}

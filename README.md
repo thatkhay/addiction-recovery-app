@@ -20,6 +20,16 @@ Tables are created automatically on first use.
 3. Add `ANTHROPIC_API_KEY` under **Settings → Environment Variables** (optional; without it the coach gives built-in offline guidance).
 4. Deploy. That's it: accounts, sync and the coach all work.
 
+## Notifications (optional)
+
+The app shows reminders in an in-app inbox, and can also send phone/desktop notifications when it's closed (web push). On iPhone, push only works after the user adds the app to their Home Screen (iOS 16.4+); the app guides them through it.
+
+1. Generate keys: `npx web-push generate-vapid-keys`.
+2. In Vercel → Settings → Environment Variables add `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (e.g. `mailto:you@example.com`) and `CRON_SECRET` (any long random string), then redeploy.
+3. Reminders are sent by `/api/cron/notify`. Vercel's free plan runs it once a day (see `vercel.json`). For on-time, per-timezone reminders, the included GitHub Action runs it every 15 minutes: in GitHub → Settings → Secrets and variables → Actions, add the secret `CRON_SECRET` (same value) and the variable `SITE_URL` (your site's URL).
+
+`/api/health` shows whether push and the scheduler are configured.
+
 ## AI coach setup
 
 The coach and journal reflections call Claude through `app/api/coach/route.ts`. Create `.env.local` with:

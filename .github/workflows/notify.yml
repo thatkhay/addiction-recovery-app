@@ -1,0 +1,26 @@
+# Sends due reminders every 15 minutes by calling the app's scheduler endpoint.
+# Setup (GitHub → Settings → Secrets and variables → Actions):
+#   secret   CRON_SECRET  same value as CRON_SECRET in Vercel
+#   variable SITE_URL     e.g. https://your-app.vercel.app
+name: Send reminders
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Call scheduler
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ] || [ -z "$SITE_URL" ]; then
+            echo "CRON_SECRET secret or SITE_URL variable not set; skipping."
+            exit 0
+          fi
+          curl --fail-with-body -sS -X POST -H "Authorization: Bearer $CRON_SECRET" "$SITE_URL/api/cron/notify"

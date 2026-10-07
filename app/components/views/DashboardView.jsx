@@ -127,7 +127,7 @@ function ThoughtCard({ now }) {
   );
 }
 
-export default function DashboardView({ userData, now, missions, cravingStats, moodEntries, getMoodTrend, onCheckIn, onLogMood, onLogCraving, onOpenCoach, onOpenJournal, onOpenMissions, onOpenPlay, insight, insightLoading, onRefreshInsight, onInsightAction }) {
+export default function DashboardView({ userData, now, missions, cravingStats, moodEntries, getMoodTrend, onCheckIn, onLogMood, onLogCraving, onOpenCoach, onOpenJournal, onOpenMissions, onOpenPlay, insight, insightLoading, onRefreshInsight, onInsightAction, topSlot }) {
   const elapsed = getElapsed(userData.quitDate, now);
   const milestone = getMilestoneProgress(elapsed.ms);
   const moneySaved = calculateMoneySaved(userData.costPerDay, userData.quitDate, now);
@@ -143,6 +143,8 @@ export default function DashboardView({ userData, now, missions, cravingStats, m
 
   return (
     <Stagger className="grid grid-cols-1 gap-4 lg:grid-cols-5 lg:gap-6">
+      {topSlot && <div className="lg:col-span-5">{topSlot}</div>}
+
       {/* Left column */}
       <div className="min-w-0 space-y-4 lg:col-span-3">
         <Rise className="hero-gradient relative overflow-hidden rounded-4xl p-6 text-white shadow-xl shadow-teal-800/20 lg:p-10">

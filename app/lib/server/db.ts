@@ -35,6 +35,32 @@ const SCHEMA = [
      updated_at BIGINT NOT NULL,
      PRIMARY KEY (user_id, key)
    )`,
+  `CREATE TABLE IF NOT EXISTS push_subscriptions (
+     endpoint TEXT PRIMARY KEY,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     p256dh TEXT NOT NULL,
+     auth TEXT NOT NULL,
+     created_at BIGINT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS push_subscriptions_user ON push_subscriptions(user_id)`,
+  `CREATE TABLE IF NOT EXISTS push_prefs (
+     user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+     tz TEXT NOT NULL DEFAULT 'UTC',
+     checkin_time TEXT NOT NULL DEFAULT '09:00',
+     types JSONB NOT NULL DEFAULT '{"checkin":true,"milestone":true,"risky":true,"comeback":true}',
+     last_sent JSONB NOT NULL DEFAULT '{}'
+   )`,
+  `CREATE TABLE IF NOT EXISTS notifications (
+     id BIGSERIAL PRIMARY KEY,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     title TEXT NOT NULL,
+     body TEXT NOT NULL,
+     url TEXT NOT NULL DEFAULT '/',
+     kind TEXT NOT NULL DEFAULT 'info',
+     created_at BIGINT NOT NULL,
+     read BOOLEAN NOT NULL DEFAULT false
+   )`,
+  `CREATE INDEX IF NOT EXISTS notifications_user ON notifications(user_id, created_at DESC)`,
   `CREATE TABLE IF NOT EXISTS rate_limits (
      key TEXT PRIMARY KEY,
      count INTEGER NOT NULL,

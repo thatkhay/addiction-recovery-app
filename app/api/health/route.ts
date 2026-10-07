@@ -28,12 +28,19 @@ export async function GET() {
     note: "Optional. Without it the coach and daily card use built-in offline content.",
   };
 
+  const notifications = {
+    push: Boolean(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY),
+    scheduler: Boolean(process.env.CRON_SECRET),
+    note: "Optional. Needs VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and CRON_SECRET for phone notifications.",
+  };
+
   const ok = database.ok === true;
   return Response.json(
     {
       ok,
       database,
       ai,
+      notifications,
       fix: ok
         ? null
         : !dbUrl && process.env.VERCEL
