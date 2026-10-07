@@ -4,9 +4,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Cloud } from "lucide-react";
 import Aurora from "./ui/Aurora";
 import Logo from "./ui/Logo";
+import AddictionPicker from "./AddictionPicker";
 import { fromDateTimeInputs, toDateInput, toTimeInput } from "../utils/dateUtils";
 
-export const ADDICTION_PRESETS = ["Alcohol", "Smoking", "Vaping", "Cannabis", "Gambling", "Opioids", "Porn", "Social media", "Sugar", "Caffeine"];
 export const CURRENCIES = ["USD", "EUR", "GBP", "NGN", "CAD", "AUD", "INR", "ZAR", "KES", "GHS"];
 
 const STEPS = ["What", "When", "Why"];
@@ -18,6 +18,8 @@ export default function OnboardingScreen({ onComplete, defaultName = "" }) {
   const [form, setForm] = useState({
     name: defaultName,
     addiction: "",
+    addictionId: null,
+    addictionCategory: null,
     date: toDateInput(now),
     time: toTimeInput(now),
     costPerDay: "",
@@ -54,6 +56,8 @@ export default function OnboardingScreen({ onComplete, defaultName = "" }) {
     onComplete({
       name: form.name.trim(),
       addiction: form.addiction.trim(),
+      addictionId: form.addictionId,
+      addictionCategory: form.addictionCategory,
       quitDate: fromDateTimeInputs(form.date, form.time),
       costPerDay: parseFloat(form.costPerDay) || 0,
       currency: form.currency,
@@ -115,17 +119,15 @@ export default function OnboardingScreen({ onComplete, defaultName = "" }) {
                   <input id="name" className="field" value={form.name} onChange={set("name")} placeholder="First name or nickname" autoComplete="given-name" />
                 </div>
                 <div>
-                  <label htmlFor="addiction" className="mb-2 block text-sm font-semibold text-slate-700">
-                    What are you recovering from?
-                  </label>
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {ADDICTION_PRESETS.map((a) => (
-                      <button type="button" key={a} onClick={() => set("addiction")(a)} className={form.addiction === a ? "chip-on" : "chip-off"}>
-                        {a}
-                      </button>
-                    ))}
-                  </div>
-                  <input id="addiction" className="field" value={form.addiction} onChange={set("addiction")} placeholder="Or type your own" />
+                  <span className="mb-2 block text-sm font-semibold text-slate-700">What are you recovering from?</span>
+                  <AddictionPicker
+                    value={form}
+                    onChange={(v) => {
+                      setError("");
+                      setForm((f) => ({ ...f, ...v }));
+                    }}
+                  />
+                  <p className="mt-2 text-xs text-slate-500">Anything counts. Everything in the app will be tailored to it.</p>
                 </div>
               </>
             )}

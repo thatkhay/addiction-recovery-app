@@ -67,8 +67,20 @@ async function connectLocal(): Promise<Db> {
   };
 }
 
+/**
+ * The Postgres connection string. Vercel's Neon integration may add a custom
+ * prefix (e.g. STORAGE_DATABASE_URL), so accept any *DATABASE_URL / *POSTGRES_URL.
+ */
+export function databaseUrl(): { name: string; url: string } | null {
+  for (const name of ["DATABASE_URL", "POSTGRES_URL"]) {
+    if (process.env[name]) return { name, url: process.env[name] as string };
+  }
+  const name = Object.keys(process.env).find((k) => /(^|_)(DATABASE_URL|POSTGRES_URL)$/.test(k) && process.env[k]);
+  return name ? { name, url: process.env[name] as string } : null;
+}
+
 async function connect() {
-  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  const url = databaseUrl()?.url;
   if (!url && process.env.VERCEL) {
     throw new Error("DATABASE_URL is not set. Add a Neon database to this Vercel project (Storage tab).");
   }

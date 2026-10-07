@@ -20,5 +20,8 @@ export function usePlayStats() {
     return isBest;
   };
 
-  return { stats, addTime, completeChallenge, recordScore };
+  /** Versus games: count wins. */
+  const recordWin = (game) => setStats((s) => ({ ...s, wins: { ...s.wins, [game]: (s.wins?.[game] || 0) + 1 } }));
+
+  return { stats, addTime, completeChallenge, recordScore, recordWin };
 }

@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { CheckCircle2, Lock } from "lucide-react";
 import { benefitsFor } from "../../constants/healthBenefits";
+import { contentFor } from "../../lib/personalize";
 import { formatDuration, getElapsed } from "../../utils/dateUtils";
 import { Bar, Reveal, Rise, Stagger } from "../ui/motion";
 
@@ -11,14 +12,16 @@ const HOUR = 60 * 60 * 1000;
 
 export default function HealthView({ userData, now }) {
   const { totalHours } = getElapsed(userData.quitDate, now);
-  const { kind, list } = benefitsFor(userData.addiction);
+  const { kind, list } = benefitsFor(userData);
+  const { warning } = contentFor(userData);
+  const behavioural = ["gambling", "digital", "porn", "gaming", "shopping"].includes(kind);
   const unlockedCount = list.filter((b) => totalHours >= b.hours).length;
   const nextIndex = list.findIndex((b) => totalHours < b.hours);
 
   return (
     <Stagger className="space-y-4 lg:space-y-6">
       <Rise as="section" className="card lg:p-8">
-        <h2 className="font-display text-2xl font-semibold text-slate-900 lg:text-3xl">Your body is healing</h2>
+        <h2 className="font-display text-2xl font-semibold text-slate-900 lg:text-3xl">{behavioural ? "Your life is healing" : "Your body is healing"}</h2>
         <p className="mt-1 text-slate-600">
           {unlockedCount} of {list.length} milestones reached
         </p>
@@ -69,7 +72,7 @@ export default function HealthView({ userData, now }) {
 
       <p className="px-2 text-xs text-slate-500">
         Typical timelines from public health sources{kind === "general" ? ", generalised across addictions" : ""}. Everyone’s body is different. This isn’t medical advice.
-        {kind === "alcohol" && " Stopping heavy drinking suddenly can be dangerous. Talk to a doctor about withdrawal."}
+        {warning && ` ${warning}`}
       </p>
     </Stagger>
   );

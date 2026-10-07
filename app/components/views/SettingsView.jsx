@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Download, History, Loader2, LogOut, Phone, Plus, RotateCcw, Trash2, UserX, X } from "lucide-react";
 import { Rise, Stagger } from "../ui/motion";
 import { CURRENCIES } from "../OnboardingScreen";
+import AddictionPicker from "../AddictionPicker";
 import { formatDuration, fromDateTimeInputs, parseQuitDate, toDateInput, toTimeInput } from "../../utils/dateUtils";
 import { toast } from "../../lib/toast";
 
@@ -34,6 +35,8 @@ export default function SettingsView({ user, userData, onBack, onUpdateProfile, 
   const [form, setForm] = useState({
     name: userData.name || "",
     addiction: userData.addiction,
+    addictionId: userData.addictionId ?? null,
+    addictionCategory: userData.addictionCategory ?? null,
     date: toDateInput(quit),
     time: toTimeInput(quit),
     costPerDay: userData.costPerDay ? String(userData.costPerDay) : "",
@@ -58,6 +61,8 @@ export default function SettingsView({ user, userData, onBack, onUpdateProfile, 
     onUpdateProfile({
       name: form.name.trim(),
       addiction: form.addiction.trim(),
+      addictionId: form.addictionId,
+      addictionCategory: form.addictionCategory,
       quitDate,
       costPerDay: Math.max(0, parseFloat(form.costPerDay) || 0),
       currency: form.currency,
@@ -105,9 +110,10 @@ export default function SettingsView({ user, userData, onBack, onUpdateProfile, 
           <Field label="Name">
             <input className="field" value={form.name} onChange={set("name")} placeholder="Optional" />
           </Field>
-          <Field label="Recovering from">
-            <input className="field" value={form.addiction} onChange={set("addiction")} />
-          </Field>
+          <div>
+            <span className="mb-1.5 block text-sm font-semibold text-slate-700">Recovering from</span>
+            <AddictionPicker value={form} onChange={(v) => setForm((f) => ({ ...f, ...v }))} />
+          </div>
           <Field label="Quit date & time">
             <div className="grid grid-cols-[1fr_auto] gap-2">
               <input type="date" className="field" value={form.date} max={toDateInput(new Date())} onChange={set("date")} aria-label="Quit date" />

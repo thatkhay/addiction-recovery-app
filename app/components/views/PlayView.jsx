@@ -5,7 +5,7 @@ import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  Brain, CircleDot, CloudRain, Dices, Flame, Grid2x2, Headphones, Laugh, Lightbulb, PlayCircle, Shuffle, Timer, Trophy, Waves, Wind,
+  Brain, CircleDot, CloudRain, ExternalLink, ChessKnight, Disc3, HelpCircle, Route, Dices, Flame, Grid2x2, Headphones, Laugh, Lightbulb, PlayCircle, Shuffle, Timer, Trophy, Waves, Wind,
 } from "lucide-react";
 import Sheet from "../ui/Sheet";
 import { AnimatedNumber, Pressable, Rise, Stagger, spring } from "../ui/motion";
@@ -14,17 +14,156 @@ import BubblePop from "../play/BubblePop";
 import MemoryMatch from "../play/MemoryMatch";
 import Game2048 from "../play/Game2048";
 import SpinWheel from "../play/SpinWheel";
-import { FACTS, JOKES, VIDEOS } from "../../constants/play";
+import ChessGame from "../play/ChessGame";
+import CheckersGame from "../play/CheckersGame";
+import SnakeGame from "../play/SnakeGame";
+import { CHALLENGES, FACTS, JOKES, VIDEOS } from "../../constants/play";
 import { playAmbient, setAmbientVolume, SOUNDS, useAmbient } from "../../lib/ambient";
 import { celebrate } from "../../lib/celebrate";
 import { toast } from "../../lib/toast";
 import { usePlayStats } from "../../hooks/usePlayStats";
+import { contentFor, youtubeSearchUrl } from "../../lib/personalize";
+
+function VideoPlayer({ video }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="space-y-3">
+      <div className="relative aspect-video overflow-hidden rounded-2xl bg-slate-900">
+        {!loaded && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/70">
+            <Image src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`} alt="" fill sizes="672px" className="object-cover opacity-40 blur-sm" />
+            <span className="relative h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white" />
+            <span className="relative text-sm">Loading video…</span>
+          </div>
+        )}
+        <iframe
+          className="relative h-full w-full"
+          src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+          title={video.title}
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allowFullScreen
+          onLoad={() => setLoaded(true)}
+        />
+      </div>
+      <a
+        href={`https://www.youtube.com/watch?v=${video.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800"
+      >
+        <ExternalLink className="h-4 w-4" /> Not playing? Open on YouTube
+      </a>
+    </div>
+  );
+}
 
 const GAMES = [
-  { id: "bubbles", title: "Bubble Pop", blurb: "45 calm seconds of popping", Icon: CircleDot, art: "from-sky-400 to-teal-400", Comp: BubblePop, unit: "", lowerIsBetter: false },
-  { id: "memory", title: "Memory Match", blurb: "Find all 8 pairs", Icon: Brain, art: "from-violet-500 to-fuchsia-500", Comp: MemoryMatch, unit: " moves", lowerIsBetter: true },
-  { id: "2048", title: "2048", blurb: "Slide, merge, get lost in it", Icon: Grid2x2, art: "from-amber-400 to-orange-500", Comp: Game2048, unit: "", lowerIsBetter: false },
+  {
+    id: "chess", title: "Chess", blurb: "Play the computer, 3 levels", Icon: ChessKnight, art: "from-teal-600 to-emerald-800", Comp: ChessGame, versus: true,
+    howTo: [
+      "You play White and move first. Tap a piece to see where it can go, then tap a dot to move.",
+      "Capture by moving onto an opponent’s piece. Pawns reaching the far side become queens.",
+      "Win by checkmate: the enemy king is attacked and can’t escape.",
+      "New to chess? Start on Easy. Undo is always there.",
+    ],
+  },
+  {
+    id: "checkers", title: "Checkers", blurb: "Draughts against the computer", Icon: Disc3, art: "from-rose-500 to-amber-600", Comp: CheckersGame, versus: true,
+    howTo: [
+      "You are red. Pieces move one square diagonally forward onto dark squares.",
+      "Jump over an opponent’s piece to capture it. If you can capture, you must.",
+      "Keep jumping if another capture is available. Multi-jumps are allowed.",
+      "Reach the far row to become a king (crown), which can move backwards too. Take all their pieces to win.",
+    ],
+  },
+  {
+    id: "snake", title: "Snake", blurb: "The classic. Don’t bite yourself", Icon: Route, art: "from-emerald-500 to-lime-500", Comp: SnakeGame, unit: "",
+    howTo: [
+      "Steer the snake to eat the red apples. Each one makes you longer and faster.",
+      "Swipe on the board, use the arrow pad, or your keyboard's arrow keys / WASD.",
+      "Hitting a wall or your own tail ends the game.",
+    ],
+  },
+  {
+    id: "bubbles", title: "Bubble Pop", blurb: "45 calm seconds of popping", Icon: CircleDot, art: "from-sky-400 to-teal-400", Comp: BubblePop, unit: "",
+    howTo: ["Tap bubbles as they float up. Each pop is a point.", "Pop several quickly in a row for a combo: 5+ in a row scores double.", "Missing bubbles costs nothing. Relax and enjoy it."],
+  },
+  {
+    id: "memory", title: "Memory Match", blurb: "Find all 8 pairs", Icon: Brain, art: "from-violet-500 to-fuchsia-500", Comp: MemoryMatch, unit: " moves", lowerIsBetter: true,
+    howTo: ["Tap two cards to flip them over.", "If the pictures match, they stay face up. If not, they flip back. Remember where they were!", "Match all 8 pairs in as few moves as you can."],
+  },
+  {
+    id: "2048", title: "2048", blurb: "Slide numbers, merge, repeat", Icon: Grid2x2, art: "from-amber-400 to-orange-500", Comp: Game2048, unit: "",
+    howTo: [
+      "Swipe (or use arrow keys) to slide every tile in that direction at once.",
+      "When two tiles with the same number touch, they merge into one: 2 + 2 = 4, 4 + 4 = 8, and so on.",
+      "A new tile appears after every move. Keep merging and try to build a 2048 tile.",
+      "The game ends when the board is full and nothing can merge. Tip: keep your biggest tile in a corner.",
+    ],
+  },
 ];
+
+const HELP_KEY = "rs-help-seen";
+const helpSeen = (id) => {
+  try {
+    return JSON.parse(localStorage.getItem(HELP_KEY) || "[]").includes(id);
+  } catch {
+    return false;
+  }
+};
+const markHelpSeen = (id) => {
+  try {
+    const seen = JSON.parse(localStorage.getItem(HELP_KEY) || "[]");
+    if (!seen.includes(id)) localStorage.setItem(HELP_KEY, JSON.stringify([...seen, id]));
+  } catch {
+    // private mode: show help again next time, no harm done
+  }
+};
+
+function GameShell({ game, best, wins, onFinish }) {
+  const [help, setHelp] = useState(() => !helpSeen(game.id));
+  const close = () => {
+    markHelpSeen(game.id);
+    setHelp(false);
+  };
+  return (
+    <div className="relative">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-sm text-slate-500">{game.versus ? `Wins: ${wins || 0}` : game.blurb}</span>
+        <button onClick={() => setHelp(true)} className="flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-semibold text-violet-700 hover:bg-violet-50">
+          <HelpCircle className="h-4 w-4" /> How to play
+        </button>
+      </div>
+      <game.Comp best={best} onFinish={onFinish} />
+      <AnimatePresence>
+        {help && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-40 flex items-start justify-center rounded-3xl bg-white/90 p-2 backdrop-blur-md"
+          >
+            <motion.div initial={{ y: 16, scale: 0.97 }} animate={{ y: 0, scale: 1 }} className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-900/5">
+              <span className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br ${game.art} text-white shadow-lg`}>
+                <game.Icon className="h-7 w-7" />
+              </span>
+              <h3 className="font-display mt-4 text-2xl font-semibold text-slate-900">How to play {game.title}</h3>
+              <ol className="mt-3 space-y-2.5">
+                {game.howTo.map((step, i) => (
+                  <motion.li key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.07 }} className="flex gap-3 text-slate-700">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">{i + 1}</span>
+                    <span className="text-sm leading-relaxed">{step}</span>
+                  </motion.li>
+                ))}
+              </ol>
+              <button onClick={close} className="btn-primary mt-6 w-full">Got it, let’s play</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 const SOUND_ICONS = { rain: CloudRain, ocean: Waves, wind: Wind, fire: Flame, brown: Headphones };
 const VIDEO_KINDS = ["All", "Calm", "Learn", "Laugh", "Music"];
@@ -40,8 +179,11 @@ function SectionTitle({ icon: Icon, children, action }) {
   );
 }
 
-export default function PlayView() {
-  const { stats, addTime, completeChallenge, recordScore } = usePlayStats();
+export default function PlayView({ userData }) {
+  const tailored = contentFor(userData);
+  const facts = [...tailored.facts, ...FACTS];
+  const challenges = [...tailored.challenges, ...CHALLENGES].slice(0, 10);
+  const { stats, addTime, completeChallenge, recordScore, recordWin } = usePlayStats();
   const ambient = useAmbient();
   const [active, setActive] = useState(null); // { kind: "game", game } | { kind: "video", video }
   const [videoKind, setVideoKind] = useState("All");
@@ -58,7 +200,7 @@ export default function PlayView() {
   };
 
   const shuffleCard = (type = card.type) => {
-    const list = type === "fact" ? FACTS : JOKES;
+    const list = type === "fact" ? facts : JOKES;
     let index = Math.floor(Math.random() * list.length);
     if (type === card.type && index === card.index) index = (index + 1) % list.length;
     setCard({ type, index });
@@ -86,7 +228,7 @@ export default function PlayView() {
 
   const minutes = Math.floor((stats.seconds || 0) / 60);
   const videos = VIDEOS.filter((v) => videoKind === "All" || v.kind === videoKind);
-  const text = card.type === "fact" ? FACTS[card.index] : JOKES[card.index];
+  const text = card.type === "fact" ? facts[card.index % facts.length] : JOKES[card.index % JOKES.length];
 
   return (
     <Stagger className="space-y-4 lg:space-y-6">
@@ -126,6 +268,7 @@ export default function PlayView() {
         <Rise as="section" className="card">
           <SectionTitle icon={Shuffle}>Spin a challenge</SectionTitle>
           <SpinWheel
+            challenges={challenges}
             onComplete={(c) => {
               completeChallenge();
               celebrate();
@@ -209,10 +352,10 @@ export default function PlayView() {
       {/* Games */}
       <Rise as="section">
         <SectionTitle icon={PlayCircle}>Games</SectionTitle>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-4">
           {GAMES.map((g) => (
-            <Pressable key={g.id} onClick={() => open({ kind: "game", game: g })} className="card group flex items-center gap-4 overflow-hidden p-4 text-left sm:flex-col sm:items-start">
-              <span className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br ${g.art} text-white shadow-lg sm:h-20 sm:w-full`}>
+            <Pressable key={g.id} onClick={() => open({ kind: "game", game: g })} className="card group flex flex-col items-start gap-3 overflow-hidden p-4 text-left">
+              <span className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br ${g.art} text-white shadow-lg sm:h-20`} style={{ width: "100%" }}>
                 <motion.span className="flex" whileHover={{ scale: 1.2, rotate: -8 }} transition={spring}>
                   <g.Icon className="h-7 w-7 sm:h-9 sm:w-9" />
                 </motion.span>
@@ -220,7 +363,12 @@ export default function PlayView() {
               <span className="min-w-0">
                 <span className="block font-semibold text-slate-900">{g.title}</span>
                 <span className="block text-sm text-slate-500">{g.blurb}</span>
-                {stats.best?.[g.id] !== undefined && (
+                {g.versus && stats.wins?.[g.id] > 0 && (
+                  <span className="mt-1 flex items-center gap-1 text-xs font-semibold text-amber-700">
+                    <Trophy className="h-3.5 w-3.5" /> {stats.wins[g.id]} {stats.wins[g.id] === 1 ? "win" : "wins"}
+                  </span>
+                )}
+                {!g.versus && stats.best?.[g.id] !== undefined && (
                   <span className="mt-1 flex items-center gap-1 text-xs font-semibold text-amber-700">
                     <Trophy className="h-3.5 w-3.5" /> Best {stats.best[g.id]}
                     {g.unit}
@@ -272,30 +420,44 @@ export default function PlayView() {
               </motion.button>
             ))}
           </AnimatePresence>
+          <a
+            href={youtubeSearchUrl(tailored.search)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="card flex w-64 shrink-0 snap-start flex-col justify-center gap-2 bg-linear-to-br from-violet-50 to-sky-50 p-5 text-left transition-transform hover:-translate-y-0.5 lg:w-auto"
+          >
+            <ExternalLink className="h-6 w-6 text-violet-600" />
+            <span className="font-semibold text-slate-900">More for you</span>
+            <span className="text-sm text-slate-600">Stories and talks about recovering from {userData.addiction.toLowerCase()}, on YouTube</span>
+          </a>
         </motion.div>
       </Rise>
 
       <AnimatePresence>
         {active?.kind === "game" && (
           <Sheet key="game" onClose={close} title={active.game.title} size="full">
-            <active.game.Comp best={stats.best?.[active.game.id]} onFinish={(score) => {
-              const isBest = recordScore(active.game.id, score, active.game.lowerIsBetter);
-              if (isBest) celebrate();
-              return isBest;
-            }} />
+            <GameShell
+              game={active.game}
+              best={stats.best?.[active.game.id]}
+              wins={stats.wins?.[active.game.id]}
+              onFinish={(score) => {
+                if (active.game.versus) {
+                  if (score === "win") {
+                    recordWin(active.game.id);
+                    celebrate("big");
+                  }
+                  return false;
+                }
+                const isBest = recordScore(active.game.id, score, active.game.lowerIsBetter);
+                if (isBest) celebrate();
+                return isBest;
+              }}
+            />
           </Sheet>
         )}
         {active?.kind === "video" && (
           <Sheet key="video" onClose={close} title={active.video.title} subtitle={active.video.by} size="full">
-            <div className="aspect-video overflow-hidden rounded-2xl bg-black">
-              <iframe
-                className="h-full w-full"
-                src={`https://www.youtube-nocookie.com/embed/${active.video.id}?autoplay=1&rel=0&modestbranding=1`}
-                title={active.video.title}
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowFullScreen
-              />
-            </div>
+            <VideoPlayer video={active.video} />
           </Sheet>
         )}
       </AnimatePresence>

@@ -39,9 +39,9 @@ export async function initAuth() {
   initStarted = true;
   try {
     const res = await fetch("/api/auth/me", { cache: "no-store" });
-    const { user } = await res.json();
-    if (user) await enter(user);
-    else set({ status: "anon" });
+    const json = await res.json().catch(() => ({}));
+    if (json.user) await enter(json.user);
+    else set({ status: "anon", error: res.ok ? null : json.error || "The server isn’t responding properly. Try again shortly." });
   } catch {
     set({ status: "anon", error: "Can’t reach the server. Check your connection." });
   }
@@ -54,7 +54,7 @@ async function post(url, body) {
     body: JSON.stringify(body),
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error || "Something went wrong. Please try again.");
+  if (!res.ok) throw new Error(json.error || `Something went wrong (error ${res.status}). Please try again.`);
   return json;
 }
 

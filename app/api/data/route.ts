@@ -2,6 +2,7 @@
 // Per-user key/value storage that mirrors the app's localStorage keys.
 import { getCurrentUser, rejectCrossSite } from "@/app/lib/server/auth";
 import { getDb } from "@/app/lib/server/db";
+import { handle } from "@/app/lib/server/http";
 
 export const runtime = "nodejs";
 
@@ -10,17 +11,17 @@ const MAX_VALUE_BYTES = 2_000_000;
 
 const unauthorized = () => Response.json({ error: "Not signed in" }, { status: 401 });
 
-export async function GET() {
+export const GET = handle(async () => {
   const user = await getCurrentUser();
   if (!user) return unauthorized();
   const db = await getDb();
   const rows = await db.query<{ key: string; value: unknown }>("SELECT key, value FROM user_data WHERE user_id = $1", [user.id]);
   const data = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   return Response.json({ data }, { headers: { "Cache-Control": "no-store" } });
-}
+});
 
 /** Body: { changes: { [key]: value | null } }. null deletes the key. */
-export async function PUT(request: Request) {
+export const PUT = handle(async (request: Request) => {
   const blocked = rejectCrossSite(request);
   if (blocked) return blocked;
   const user = await getCurrentUser();
@@ -55,10 +56,10 @@ export async function PUT(request: Request) {
     )
   );
   return Response.json({ ok: true, saved: entries.length });
-}
+});
 
 /** Wipe all of this user's recovery data (the account stays). */
-export async function DELETE(request: Request) {
+export const DELETE = handle(async (request: Request) => {
   const blocked = rejectCrossSite(request);
   if (blocked) return blocked;
   const user = await getCurrentUser();
@@ -66,4 +67,4 @@ export async function DELETE(request: Request) {
   const db = await getDb();
   await db.query("DELETE FROM user_data WHERE user_id = $1", [user.id]);
   return Response.json({ ok: true });
-}
+});

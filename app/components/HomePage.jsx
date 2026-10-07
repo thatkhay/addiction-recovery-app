@@ -11,6 +11,7 @@ import { useCravings } from "../hooks/useCravings";
 import { useDiary } from "../hooks/useDiary";
 import { useMood } from "../hooks/useMood";
 import { useCoach } from "../hooks/useCoach";
+import { useDailyInsight } from "../hooks/useDailyInsight";
 import { clearAll, useHydrated, useNow } from "../lib/store";
 import { toast } from "../lib/toast";
 import { celebrate } from "../lib/celebrate";
@@ -98,6 +99,7 @@ function App() {
   const [sheet, setSheet] = useState(null); // { type, ...props }
   const [selectedEntryId, setSelectedEntryId] = useState(null);
   const [reflectingId, setReflectingId] = useState(null);
+  const [journalSeed, setJournalSeed] = useState("");
 
   const { userData, saveUserData, updateProfile, recordRelapse } = useUserData();
   const { cravings, addCraving, deleteCraving, restoreCraving, getCravingStats } = useCravings();
@@ -120,6 +122,7 @@ function App() {
     [daysClean, cravings, diaryEntries, moodEntries, coach.aiUsageCount]
   );
   const { missions, totalXP, level, progress: levelProgress, toNext } = useMissions(missionData, ready && Boolean(userData));
+  const daily = useDailyInsight({ userData: ready ? userData : null, cravings, moodEntries, daysClean, now });
 
   const go = (next) => {
     setView(next);
@@ -213,7 +216,7 @@ function App() {
             <motion.div
               key={view}
               initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none" } }}
               exit={{ opacity: 0, y: -8, filter: "blur(8px)" }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             >
@@ -232,6 +235,18 @@ function App() {
                   onOpenJournal={() => go("journal")}
                   onOpenMissions={() => go("missions")}
                   onOpenPlay={() => go("play")}
+                  insight={daily.insight}
+                  insightLoading={daily.loading}
+                  onRefreshInsight={daily.refresh}
+                  onInsightAction={(action, prompt) => {
+                    if (action === "sos") open("sos");
+                    else if (action === "play") go("play");
+                    else if (action === "coach") open("coach");
+                    else if (action === "journal") {
+                      setJournalSeed(prompt ? `${prompt}\n\n` : "");
+                      go("journal");
+                    }
+                  }}
                 />
               )}
               {view === "insights" && (
@@ -245,15 +260,18 @@ function App() {
                   }}
                 />
               )}
-              {view === "play" && <PlayView />}
+              {view === "play" && <PlayView userData={userData} />}
               {view === "more" && <MoreView user={auth.user} level={level} onOpen={go} onSignOut={handleSignOut} />}
               {view === "journal" && (
                 <DiaryView
+                  key={journalSeed}
+                  initialDraft={journalSeed}
                   diaryEntries={diaryEntries}
                   onSelectEntry={setSelectedEntryId}
                   onSave={(text, withReflection) => {
                     const entry = addDiaryEntry(text);
                     if (!entry) return;
+                    setJournalSeed("");
                     if (withReflection) {
                       setSelectedEntryId(entry.id);
                       reflectOn(entry);

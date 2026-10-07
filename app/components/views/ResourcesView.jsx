@@ -3,6 +3,7 @@
 import React from "react";
 import { Apple, Book, ExternalLink, Footprints, Globe, Hourglass, Lightbulb, MessageSquareHeart, Phone, Snowflake, UserPlus, Users, Wind } from "lucide-react";
 import { Pressable, Rise, Stagger } from "../ui/motion";
+import { categoryFor } from "../../lib/personalize";
 
 const COPING = [
   { Icon: Wind, tint: "bg-teal-50 text-teal-700", title: "Breathe it down", text: "In for 4, hold for 4, out for 6. Five rounds. The SOS button guides you." },
@@ -13,42 +14,53 @@ const COPING = [
   { Icon: MessageSquareHeart, tint: "bg-amber-50 text-amber-700", title: "Say it out loud", text: "Text or call someone. Cravings lose power when they’re shared." },
 ];
 
-function getResources(addiction) {
-  const a = addiction.toLowerCase();
+const GROUPS = {
+  alcohol: [
+    { name: "Alcoholics Anonymous", url: "https://www.aa.org/find-aa", description: "Find local and online AA meetings" },
+    { name: "Al-Anon", url: "https://al-anon.org/", description: "Support for family and friends" },
+  ],
+  nicotine: [
+    { name: "Smokefree.gov", url: "https://smokefree.gov/", description: "Free tools, texting programs and apps" },
+    { name: "Nicotine Anonymous", url: "https://nicotine-anonymous.org/", description: "Find a meeting" },
+  ],
+  gambling: [
+    { name: "Gamblers Anonymous", url: "https://www.gamblersanonymous.org/", description: "Find a GA meeting" },
+    { name: "NCPG", url: "https://www.ncpgambling.org/", description: "Resources and treatment finder" },
+  ],
+  cannabis: [{ name: "Marijuana Anonymous", url: "https://marijuana-anonymous.org/", description: "Meetings, online and in person" }],
+  opioids: [
+    { name: "Narcotics Anonymous", url: "https://na.org/meetingsearch/", description: "Find an NA meeting" },
+    { name: "FindTreatment.gov", url: "https://findtreatment.gov/", description: "Find treatment, including medication options" },
+  ],
+  stimulants: [
+    { name: "Cocaine Anonymous", url: "https://ca.org/", description: "Meetings and support" },
+    { name: "Narcotics Anonymous", url: "https://na.org/meetingsearch/", description: "Find an NA meeting" },
+  ],
+  sedatives: [{ name: "FindTreatment.gov", url: "https://findtreatment.gov/", description: "Find medically supported treatment" }],
+  food: [{ name: "Overeaters Anonymous", url: "https://oa.org/", description: "Support for compulsive eating" }],
+  shopping: [{ name: "Debtors Anonymous", url: "https://debtorsanonymous.org/", description: "Support for compulsive spending and debt" }],
+  gaming: [{ name: "Game Quitters", url: "https://gamequitters.com/", description: "Community and tools for quitting gaming" }],
+  porn: [{ name: "Sex Addicts Anonymous", url: "https://saa-recovery.org/", description: "Meetings, online and in person" }],
+};
+
+function getResources(userData) {
+  const category = categoryFor(userData);
   const helplines = [
     { name: "988 Suicide & Crisis Lifeline", label: "988", dial: "988", description: "US · call or text, 24/7" },
     { name: "SAMHSA National Helpline", label: "1-800-662-4357", dial: "18006624357", description: "US · treatment referral, free & confidential" },
   ];
+  if (category === "nicotine") helplines.push({ name: "Quitline", label: "1-800-QUIT-NOW", dial: "18007848669", description: "US · free quit coaching" });
+  if (category === "gambling") helplines.push({ name: "National Problem Gambling Helpline", label: "1-800-522-4700", dial: "18005224700", description: "US · 24/7, call or text" });
+
   const groups = [
-    { name: "SMART Recovery", url: "https://smartrecovery.org/", description: "Science-based meetings, online and in person" },
+    ...(GROUPS[category] || []),
+    { name: "SMART Recovery", url: "https://smartrecovery.org/", description: "Science-based meetings for any addiction" },
   ];
-
-  if (/smok|cigar|vap|nicotine|tobacco/.test(a)) {
-    helplines.push({ name: "Quitline", label: "1-800-QUIT-NOW", dial: "18007848669", description: "US · free quit coaching" });
-    groups.push(
-      { name: "Smokefree.gov", url: "https://smokefree.gov/", description: "Free tools, texting programs and apps" },
-      { name: "Nicotine Anonymous", url: "https://nicotine-anonymous.org/", description: "Find a meeting" }
-    );
-  } else if (/alcohol|drink/.test(a)) {
-    groups.push(
-      { name: "Alcoholics Anonymous", url: "https://www.aa.org/find-aa", description: "Find local and online AA meetings" },
-      { name: "Al-Anon", url: "https://al-anon.org/", description: "Support for family and friends" }
-    );
-  } else if (/gambl|bet/.test(a)) {
-    helplines.push({ name: "National Problem Gambling Helpline", label: "1-800-522-4700", dial: "18005224700", description: "US · 24/7, call or text" });
-    groups.push(
-      { name: "Gamblers Anonymous", url: "https://www.gamblersanonymous.org/", description: "Find a GA meeting" },
-      { name: "NCPG", url: "https://www.ncpgambling.org/", description: "Resources and treatment finder" }
-    );
-  } else if (/opioid|heroin|fentanyl|pill|drug|cocaine|meth|cannabis|weed/.test(a)) {
-    groups.push({ name: "Narcotics Anonymous", url: "https://na.org/meetingsearch/", description: "Find an NA meeting" });
-  }
-
   return { helplines, groups };
 }
 
 export default function ResourcesView({ userData, onOpenSettings }) {
-  const { helplines, groups } = getResources(userData.addiction);
+  const { helplines, groups } = getResources(userData);
   const contacts = userData.supportContacts || [];
 
   return (

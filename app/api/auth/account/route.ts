@@ -1,9 +1,10 @@
 import { deleteUser, endSession, getCurrentUser, getUserRow, rejectCrossSite, verifyPassword } from "@/app/lib/server/auth";
+import { handle } from "@/app/lib/server/http";
 
 export const runtime = "nodejs";
 
 /** Permanently delete the signed-in account and all of its data. */
-export async function DELETE(request: Request) {
+export const DELETE = handle(async (request: Request) => {
   const blocked = rejectCrossSite(request);
   if (blocked) return blocked;
   const user = await getCurrentUser();
@@ -18,4 +19,4 @@ export async function DELETE(request: Request) {
   await endSession();
   await deleteUser(user.id);
   return Response.json({ ok: true });
-}
+});

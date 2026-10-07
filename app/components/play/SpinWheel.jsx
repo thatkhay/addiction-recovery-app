@@ -6,20 +6,20 @@ import { Check, RotateCw } from "lucide-react";
 import { CHALLENGES } from "../../constants/play";
 import { haptic } from "../../lib/haptics";
 
-const SEG = 360 / CHALLENGES.length;
 const WHEEL = 248;
 
-export default function SpinWheel({ onComplete }) {
+export default function SpinWheel({ onComplete, challenges = CHALLENGES }) {
+  const SEG = 360 / challenges.length;
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [done, setDone] = useState(false);
 
-  const gradient = `conic-gradient(${CHALLENGES.map((c, i) => `${c.color} ${i * SEG}deg ${(i + 1) * SEG}deg`).join(", ")})`;
+  const gradient = `conic-gradient(${challenges.map((c, i) => `${c.color} ${i * SEG}deg ${(i + 1) * SEG}deg`).join(", ")})`;
 
   const spin = () => {
     if (spinning) return;
-    const target = Math.floor(Math.random() * CHALLENGES.length);
+    const target = Math.floor(Math.random() * challenges.length);
     const jitter = (Math.random() - 0.5) * SEG * 0.6;
     const landing = (360 - (target * SEG + SEG / 2) + jitter + 360) % 360;
     setRotation((r) => r - (r % 360) + 360 * 6 + landing);
@@ -29,7 +29,7 @@ export default function SpinWheel({ onComplete }) {
     haptic(15);
     setTimeout(() => {
       setSpinning(false);
-      setResult(CHALLENGES[target]);
+      setResult(challenges[target]);
       haptic([10, 30, 10]);
     }, 4200);
   };
@@ -46,7 +46,7 @@ export default function SpinWheel({ onComplete }) {
           animate={{ rotate: rotation }}
           transition={{ duration: 4, ease: [0.12, 0.8, 0.18, 1] }}
         >
-          {CHALLENGES.map((c, i) => {
+          {challenges.map((c, i) => {
             const angle = i * SEG + SEG / 2;
             return (
               <span

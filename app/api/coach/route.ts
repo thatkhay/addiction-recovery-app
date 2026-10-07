@@ -3,6 +3,7 @@
 // credentials are configured so the client can fall back to offline support.
 import Anthropic from "@anthropic-ai/sdk";
 import { getCurrentUser, rateLimit } from "@/app/lib/server/auth";
+import { handle } from "@/app/lib/server/http";
 
 export const runtime = "nodejs";
 // Streaming replies can take a while; give the function room on Vercel.
@@ -45,7 +46,7 @@ function contextNote(profile: Profile = {}) {
   return parts.join(" ");
 }
 
-export async function POST(request: Request) {
+export const POST = handle(async (request: Request) => {
   const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Sign in to use the coach" }, { status: 401 });
   if (!(await rateLimit(`coach:${user.id}`, 60, 60 * 60 * 1000))) {
@@ -144,4 +145,4 @@ export async function POST(request: Request) {
   return new Response(readable, {
     headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
   });
-}
+});

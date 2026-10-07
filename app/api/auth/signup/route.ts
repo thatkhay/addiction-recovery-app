@@ -2,10 +2,11 @@ import {
   clientIp, createUser, findUserByEmail, isValidEmail, normalizeEmail,
   passwordProblem, rateLimit, rejectCrossSite, startSession,
 } from "@/app/lib/server/auth";
+import { handle } from "@/app/lib/server/http";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+export const POST = handle(async (request: Request) => {
   const blocked = rejectCrossSite(request);
   if (blocked) return blocked;
   if (!(await rateLimit(`signup:${clientIp(request)}`, 10, 60 * 60 * 1000))) {
@@ -26,4 +27,4 @@ export async function POST(request: Request) {
   const user = await createUser(email, name, body.password);
   await startSession(user.id);
   return Response.json({ user }, { status: 201 });
-}
+});

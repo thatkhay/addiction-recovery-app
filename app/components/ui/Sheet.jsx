@@ -3,6 +3,7 @@
 // Render inside <AnimatePresence> for exit animations.
 "use client";
 import React, { useEffect, useId, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, useDragControls } from "motion/react";
 import { X } from "lucide-react";
 import { useIsDesktop } from "../../lib/useMedia";
@@ -33,7 +34,9 @@ export default function Sheet({ onClose, title, subtitle, children, size = "md",
 
   const width = { md: "lg:max-w-md", lg: "lg:max-w-xl", full: "lg:max-w-2xl" }[size];
 
-  return (
+  // Portal to <body>: a CSS filter/transform on any ancestor (e.g. page transitions)
+  // would otherwise turn `position: fixed` into positioning inside that ancestor.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center lg:items-center lg:p-6">
       <motion.div
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
@@ -51,7 +54,7 @@ export default function Sheet({ onClose, title, subtitle, children, size = "md",
         aria-labelledby={title ? titleId : undefined}
         className={`relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-4xl bg-white shadow-2xl outline-none lg:rounded-4xl ${width}`}
         initial={desktop ? { opacity: 0, scale: 0.94, y: 16, filter: "blur(6px)" } : { y: "100%" }}
-        animate={desktop ? { opacity: 1, scale: 1, y: 0, filter: "blur(0px)" } : { y: 0 }}
+        animate={desktop ? { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none" } } : { y: 0 }}
         exit={desktop ? { opacity: 0, scale: 0.96, y: 8, filter: "blur(4px)" } : { y: "100%" }}
         transition={{ type: "spring", stiffness: 340, damping: 34 }}
         drag={desktop ? false : "y"}
@@ -88,5 +91,5 @@ export default function Sheet({ onClose, title, subtitle, children, size = "md",
         <div className="pb-safe overflow-y-auto px-6 pt-2 pb-6">{children}</div>
       </motion.div>
     </div>
-  );
+  , document.body);
 }

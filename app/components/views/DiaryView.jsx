@@ -15,8 +15,8 @@ const PROMPTS = [
   "Tomorrow I want to…",
 ];
 
-export default function DiaryView({ diaryEntries, onSave, onSelectEntry }) {
-  const [draft, setDraft] = useState("");
+export default function DiaryView({ diaryEntries, onSave, onSelectEntry, initialDraft = "" }) {
+  const [draft, setDraft] = useState(initialDraft);
   const [query, setQuery] = useState("");
   const speech = useSpeechInput(setDraft);
 

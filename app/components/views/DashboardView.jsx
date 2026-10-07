@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import {
   BookOpen, CheckCircle2, ChevronRight, CloudSun, Flame, Gamepad2, HandHeart, Heart, HeartCrack,
   MessageCircleHeart, Quote, Shield, Shuffle, TrendingUp, Trophy, Wallet, Zap,
+  Compass, LifeBuoy, PenLine, RefreshCw,
 } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { THOUGHTS, thoughtOfTheDay } from "../../constants/play";
@@ -47,6 +48,49 @@ const TRENDS = {
   struggling: { Icon: HeartCrack, tint: "text-amber-700 bg-amber-50", text: "It’s been a heavy week. Consider reaching out to someone today." },
 };
 
+const INSIGHT_ACTIONS = {
+  sos: { label: "Open SOS toolkit", Icon: LifeBuoy },
+  play: { label: "Find a distraction", Icon: Gamepad2 },
+  journal: { label: "Write about it", Icon: PenLine },
+  coach: { label: "Talk it through", Icon: MessageCircleHeart },
+};
+
+function ForYouCard({ insight, loading, onRefresh, onAction }) {
+  if (!insight) return null;
+  const action = INSIGHT_ACTIONS[insight.action];
+  return (
+    <Rise className="relative overflow-hidden rounded-3xl bg-linear-to-br from-teal-600 to-sky-700 p-[1.5px] shadow-lg shadow-teal-800/15">
+      <div className="relative rounded-[calc(1.5rem-1.5px)] bg-white/95 p-5 backdrop-blur">
+        <div className="flex items-center justify-between gap-2">
+          <span className="eyebrow flex items-center gap-1.5 text-teal-700">
+            <Compass className="h-3.5 w-3.5" /> For you today
+          </span>
+          <motion.button
+            whileTap={{ rotate: 180 }}
+            onClick={onRefresh}
+            disabled={loading}
+            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            aria-label="Refresh suggestion"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          </motion.button>
+        </div>
+        <AnimatePresence mode="wait">
+          <motion.div key={insight.title + insight.body} initial={{ opacity: 0, y: 6, filter: "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none" } }} exit={{ opacity: 0 }}>
+            <p className="font-display mt-2 text-xl font-semibold text-slate-900">{insight.title}</p>
+            <p className="mt-1 leading-relaxed text-slate-600">{insight.body}</p>
+            {action && (
+              <motion.button whileTap={{ scale: 0.97 }} onClick={() => onAction(insight.action, insight.journalPrompt)} className="btn mt-4 bg-teal-600 px-4 py-2.5 text-sm text-white hover:bg-teal-700">
+                <action.Icon className="h-4 w-4" /> {action.label}
+              </motion.button>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </Rise>
+  );
+}
+
 function ThoughtCard({ now }) {
   const [custom, setCustom] = React.useState(null);
   const text = custom ?? thoughtOfTheDay(new Date(now || 0));
@@ -83,7 +127,7 @@ function ThoughtCard({ now }) {
   );
 }
 
-export default function DashboardView({ userData, now, missions, cravingStats, moodEntries, getMoodTrend, onCheckIn, onLogMood, onLogCraving, onOpenCoach, onOpenJournal, onOpenMissions, onOpenPlay }) {
+export default function DashboardView({ userData, now, missions, cravingStats, moodEntries, getMoodTrend, onCheckIn, onLogMood, onLogCraving, onOpenCoach, onOpenJournal, onOpenMissions, onOpenPlay, insight, insightLoading, onRefreshInsight, onInsightAction }) {
   const elapsed = getElapsed(userData.quitDate, now);
   const milestone = getMilestoneProgress(elapsed.ms);
   const moneySaved = calculateMoneySaved(userData.costPerDay, userData.quitDate, now);
@@ -181,6 +225,8 @@ export default function DashboardView({ userData, now, missions, cravingStats, m
 
       {/* Right column */}
       <div className="min-w-0 space-y-4 lg:col-span-2">
+        <ForYouCard insight={insight} loading={insightLoading} onRefresh={onRefreshInsight} onAction={onInsightAction} />
+
         <div className="grid grid-cols-2 gap-3">
           {userData.costPerDay > 0 && (
             <Stat icon={Wallet} tint="bg-emerald-50 text-emerald-700" label="Money saved">
