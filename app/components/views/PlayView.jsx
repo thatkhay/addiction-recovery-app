@@ -234,8 +234,8 @@ export default function PlayView({ userData }) {
     <Stagger className="space-y-4 lg:space-y-6">
       {/* Hero */}
       <Rise as="section" className="relative overflow-hidden rounded-4xl bg-linear-to-br from-violet-600 via-indigo-600 to-sky-600 p-6 text-white shadow-xl shadow-indigo-700/20 lg:p-10">
-        <motion.div className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-fuchsia-400/30 blur-3xl" animate={{ x: [0, -40, 0], y: [0, 30, 0] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }} />
-        <motion.div className="pointer-events-none absolute -bottom-20 left-10 h-56 w-56 rounded-full bg-sky-300/30 blur-3xl" animate={{ x: [0, 40, 0] }} transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }} />
+        <motion.div className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgb(232_121_249/0.45),transparent_68%)]" animate={{ x: [0, -40, 0], y: [0, 30, 0] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }} />
+        <motion.div className="pointer-events-none absolute -bottom-20 left-10 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgb(125_211_252/0.45),transparent_68%)]" animate={{ x: [0, 40, 0] }} transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }} />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-medium text-white/80">Play & unwind</p>

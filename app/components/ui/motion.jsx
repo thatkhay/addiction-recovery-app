@@ -14,8 +14,8 @@ const container = {
 };
 
 const item = {
-  hidden: { opacity: 0, y: 18, filter: "blur(8px)" },
-  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: softSpring, transitionEnd: { filter: "none" } },
+  hidden: { opacity: 0, y: 16, scale: 0.985 },
+  show: { opacity: 1, y: 0, scale: 1, transition: softSpring },
 };
 
 /** Children wrapped in <Rise> animate in one after another. */
@@ -42,8 +42,8 @@ export function Reveal({ className, children, delay = 0, as = "div", ...rest }) 
   return (
     <Comp
       className={className}
-      initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none" } }}
+      initial={{ opacity: 0, y: 24, scale: 0.985 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ ...softSpring, delay }}
       {...rest}

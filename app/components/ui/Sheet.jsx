@@ -39,7 +39,7 @@ export default function Sheet({ onClose, title, subtitle, children, size = "md",
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center lg:items-center lg:p-6">
       <motion.div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+        className="absolute inset-0 bg-slate-900/45 backdrop-blur-[3px]"
         onClick={onClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

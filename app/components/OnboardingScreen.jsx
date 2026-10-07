@@ -105,9 +105,9 @@ export default function OnboardingScreen({ onComplete, defaultName = "" }) {
             <motion.div
               key={step}
               className="space-y-5"
-              initial={{ opacity: 0, x: direction * 36, filter: "blur(6px)" }}
-              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, x: direction * -36, filter: "blur(6px)" }}
+              initial={{ opacity: 0, x: direction * 36 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: direction * -36 }}
               transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
             >
             {step === 0 && (

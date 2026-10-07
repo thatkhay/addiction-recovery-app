@@ -24,9 +24,9 @@ export default function Toaster() {
             <motion.div
               key={t.id}
               layout
-              initial={{ opacity: 0, y: -24, scale: 0.9, filter: "blur(6px)" }}
-              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-              exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)", transition: { duration: 0.18 } }}
+              initial={{ opacity: 0, y: -24, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.18 } }}
               transition={{ type: "spring", stiffness: 420, damping: 30 }}
               className="glass pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-2xl py-2 pr-2.5 pl-2"
             >

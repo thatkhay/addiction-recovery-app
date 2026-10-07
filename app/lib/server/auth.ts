@@ -126,6 +126,8 @@ export async function getCurrentUser(): Promise<PublicUser | null> {
 export async function rateLimit(key: string, limit = 10, windowMs = 15 * 60 * 1000) {
   const now = Date.now();
   const db = await getDb();
+  // Occasionally sweep expired counters so the table doesn't grow forever.
+  if (Math.random() < 0.02) await db.query("DELETE FROM rate_limits WHERE reset_at < $1", [now]);
   const [row] = await db.query<{ count: number }>(
     `INSERT INTO rate_limits (key, count, reset_at) VALUES ($1, 1, $2)
      ON CONFLICT (key) DO UPDATE SET

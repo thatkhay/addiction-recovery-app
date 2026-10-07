@@ -40,7 +40,7 @@ export default function MissionsView({ missions, totalXP, level, levelProgress, 
 
       <Rise as="section" className="card relative overflow-hidden bg-linear-to-br from-amber-50 to-orange-50 ring-amber-200 lg:p-8">
         <motion.div
-          className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-amber-300/30 blur-2xl"
+          className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgb(252_211_77/0.45),transparent_68%)]"
           animate={{ scale: [1, 1.3, 1] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -88,8 +88,8 @@ export default function MissionsView({ missions, totalXP, level, levelProgress, 
               <motion.div
                 layout
                 key={m.id}
-                initial={{ opacity: 0, y: 14, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)", transition: { delay: Math.min(i, 10) * 0.03 } }}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0, transition: { delay: Math.min(i, 10) * 0.03 } }}
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
                 className={`card flex items-start gap-4 p-4 ${m.completed ? "bg-teal-50/70 ring-teal-200" : ""}`}
               >

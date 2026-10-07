@@ -31,9 +31,9 @@ function Breathe({ startedAt, now }) {
     <div className="flex flex-col items-center py-4">
       <div className="relative flex h-56 w-56 items-center justify-center">
         <motion.div
-          className="absolute -inset-4 rounded-full bg-[conic-gradient(from_0deg,#5eead4,#a7f3d0,#bae6fd,#5eead4)] opacity-40 blur-2xl"
-          animate={{ rotate: 360, scale: expanded ? 1 : 0.7 }}
-          transition={{ rotate: { duration: 12, repeat: Infinity, ease: "linear" }, scale: { duration: 4, ease: "easeInOut" } }}
+          className="absolute -inset-6 rounded-full bg-[radial-gradient(circle,rgb(94_234_212/0.55),rgb(167_243_208/0.25)_45%,transparent_70%)]"
+          animate={{ scale: expanded ? 1.05 : 0.7 }}
+          transition={{ duration: 4, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute inset-0 rounded-full bg-teal-100"
@@ -232,9 +232,9 @@ export default function SOSSheet({ onClose, userData, onTalkToCoach, onLogCravin
         <AnimatePresence mode="wait">
           <motion.div
             key={tool}
-            initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -8, filter: "blur(6px)" }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.22 }}
           >
             {tool === "breathe" && <Breathe startedAt={startedAt} now={now} />}

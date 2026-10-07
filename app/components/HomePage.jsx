@@ -215,10 +215,9 @@ function App() {
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={view}
-              initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none" } }}
-              exit={{ opacity: 0, y: -8, filter: "blur(8px)" }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } }}
+              exit={{ opacity: 0, transition: { duration: 0.1 } }}
             >
               {view === "home" && (
                 <DashboardView

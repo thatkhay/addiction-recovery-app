@@ -39,9 +39,9 @@ export default function CravingModal({ onClose, onSave, onGaveIn, resisted = fal
       <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={step}
-        initial={{ opacity: 0, x: 30, filter: "blur(6px)" }}
-        animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-        exit={{ opacity: 0, x: -30, filter: "blur(6px)" }}
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -30 }}
         transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
       >
       {step === 1 && (

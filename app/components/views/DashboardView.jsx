@@ -147,12 +147,12 @@ export default function DashboardView({ userData, now, missions, cravingStats, m
       <div className="min-w-0 space-y-4 lg:col-span-3">
         <Rise className="hero-gradient relative overflow-hidden rounded-4xl p-6 text-white shadow-xl shadow-teal-800/20 lg:p-10">
           <motion.div
-            className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/15 blur-3xl"
+            className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(255_255_255/0.28),transparent_68%)]"
             animate={{ x: [0, -30, 0], y: [0, 20, 0], scale: [1, 1.15, 1] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-emerald-300/20 blur-3xl"
+            className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgb(110_231_183/0.35),transparent_68%)]"
             animate={{ x: [0, 30, 0], y: [0, -16, 0] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
