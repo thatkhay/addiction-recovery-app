@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+/* The UI is designed for a light theme; pin it so OS dark mode doesn't
+   turn unstyled text light-on-white inside cards and inputs. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --background: #f3f8f6;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -10,17 +13,158 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@utility card {
+  @apply rounded-3xl bg-white/85 p-5 ring-1 ring-slate-900/[0.06] backdrop-blur-xl;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 12px 32px -16px rgb(15 23 42 / 0.18);
+}
+
+@utility glass {
+  @apply bg-white/70 ring-1 ring-white/70 backdrop-blur-2xl;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 24px 60px -24px rgb(15 23 42 / 0.25);
+}
+
+@utility field {
+  @apply w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 transition outline-none focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/10;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-teal-600 text-white shadow-sm hover:bg-teal-700;
+}
+
+@utility btn-secondary {
+  @apply btn bg-slate-100 text-slate-800 hover:bg-slate-200;
+}
+
+@utility btn-danger {
+  @apply btn bg-rose-600 text-white hover:bg-rose-700;
+}
+
+@utility chip {
+  @apply rounded-full border px-3 py-1.5 text-sm font-medium transition;
+}
+
+@utility chip-off {
+  @apply chip border-slate-200 bg-white text-slate-600 hover:border-slate-300;
+}
+
+@utility chip-on {
+  @apply chip border-teal-600 bg-teal-600 text-white;
+}
+
+@utility eyebrow {
+  @apply text-xs font-semibold tracking-wide text-slate-500 uppercase;
+}
+
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.pb-safe {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.35s ease-out both; }
+
+/* ---- Aurora background ---- */
+.aurora-blob {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 9999px;
+  filter: blur(70px);
+  will-change: transform;
+}
+.aurora-a {
+  background: radial-gradient(circle, #5eead4 0%, transparent 62%);
+  top: -22vmax;
+  left: -18vmax;
+  animation: drift-a 26s ease-in-out infinite alternate;
+}
+.aurora-b {
+  background: radial-gradient(circle, #a7f3d0 0%, transparent 62%);
+  top: -12vmax;
+  right: -24vmax;
+  animation: drift-b 32s ease-in-out infinite alternate;
+}
+.aurora-c {
+  background: radial-gradient(circle, #bae6fd 0%, transparent 62%);
+  bottom: -34vmax;
+  left: 10vmax;
+  animation: drift-c 38s ease-in-out infinite alternate;
+}
+@keyframes drift-a { to { transform: translate(14vmax, 12vmax) scale(1.2); } }
+@keyframes drift-b { to { transform: translate(-12vmax, 16vmax) scale(0.9); } }
+@keyframes drift-c { to { transform: translate(-10vmax, -14vmax) scale(1.15); } }
+
+/* ---- Shimmering text (brand moments) ---- */
+.text-shimmer {
+  background: linear-gradient(110deg, #0f766e 20%, #34d399 40%, #0f766e 60%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+@keyframes shimmer { to { background-position: -220% 0; } }
+
+/* ---- Pulse ring (SOS) ---- */
+.pulse-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgb(225 29 72 / 0.45);
+  animation: pulse-ring 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgb(225 29 72 / 0.45); }
+  70%, 100% { box-shadow: 0 0 0 18px rgb(225 29 72 / 0); }
+}
+
+/* ---- Moving gradient for the hero ---- */
+.hero-gradient {
+  background: linear-gradient(130deg, #0d9488, #059669, #0f766e, #0e7490);
+  background-size: 300% 300%;
+  animation: hero-shift 16s ease-in-out infinite;
+}
+@keyframes hero-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

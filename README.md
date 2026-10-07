@@ -1,4 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Recovery
+
+A private addiction recovery companion built with Next.js: a live sobriety timer, daily check-ins, an SOS craving toolkit, journaling, health milestones, insights and an AI recovery coach.
+
+## Accounts and data
+
+People sign up with an email and password. Passwords are hashed with scrypt; sessions are random tokens stored hashed in the database and sent as `httpOnly` cookies. Each user's data is saved instantly on the device and synced to their account in the background, so it follows them to other devices and keeps working offline.
+
+The database is Postgres:
+
+- **On Vercel / in production:** [Neon](https://neon.tech) serverless Postgres, used whenever `DATABASE_URL` is set.
+- **Locally:** if `DATABASE_URL` isn't set, an embedded Postgres ([PGlite](https://pglite.dev)) stored in `./data/pglite` (gitignored). No setup needed.
+
+Tables are created automatically on first use.
+
+## Deploying to Vercel
+
+1. Push the repo to GitHub and import it in Vercel.
+2. In the Vercel project, open **Storage → Create Database → Neon (Postgres)** and connect it to the project. This sets `DATABASE_URL` for you.
+3. Add `ANTHROPIC_API_KEY` under **Settings → Environment Variables** (optional; without it the coach gives built-in offline guidance).
+4. Deploy. That's it: accounts, sync and the coach all work.
+
+## AI coach setup
+
+The coach and journal reflections call Claude through `app/api/coach/route.ts`. Create `.env.local` with:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+The coach is only available to signed-in users (rate-limited to 60 messages per hour each). Without a key the app still works: the coach falls back to built-in offline guidance (marked "Offline guidance" in the chat).
 
 ## Getting Started
 
